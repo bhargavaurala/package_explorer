@@ -2,6 +2,7 @@ import pkgutil
 import sys
 import os
 import inspect
+import json
 import pickle
 
 from numpydoc_parser import numpy_fn_parser, numpy_cls_parser
@@ -107,6 +108,12 @@ node = Node(package_name,
                 nodes=[])
 explore_module(mymodule, package_name, node)
 print(node)
-outfile_name = '{}.db.pkl'.format(package_name)
-with open(outfile_name, 'wb') as f:
-    pickle.dump(node, f)
+# outfile_name = '{}.db.pkl'.format(package_name)
+# with open(outfile_name, 'wb') as f:
+#     pickle.dump(node, f)
+node_dict = node.to_serialized_dict()
+node_dict['library'], node_dict['module'] = package_name.split('.')
+outfile_name = '{}.json'.format(package_name)
+with open(outfile_name, 'w') as f:
+    node_dict_str = json.dumps(node_dict, indent=4, sort_keys=False)
+    f.write(node_dict_str)

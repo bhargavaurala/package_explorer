@@ -1,3 +1,15 @@
+class_to_str = {
+    int: 'int',
+    float: 'float',
+    bool: 'bool',
+    str: 'str',
+    dict: 'dict',
+    list: 'list',
+    tuple: 'tuple',
+    iter: 'iter',
+    callable: 'callable'
+}
+
 class Input(object):
     def __init__(self, 
         name,
@@ -18,6 +30,12 @@ class Input(object):
         attrs = vars(self)    
         return '\n'.join("%s: %s" % item for item in attrs.items())
 
+    def to_serialized_dict(self):
+        serialized_dict = {}
+        for var, val in vars(self).items():
+            serialized_dict[var] = class_to_str[val] if val in class_to_str else val
+        return serialized_dict
+
 class Output(object):
     def __init__(self, 
         name,       
@@ -33,6 +51,12 @@ class Output(object):
         attrs = vars(self)    
         return '\n'.join("%s: %s" % item for item in attrs.items())
 
+    def to_serialized_dict(self):
+        serialized_dict = {}
+        for var, val in vars(self).items():
+            serialized_dict[var] = class_to_str[val] if val in class_to_str else val
+        return serialized_dict
+
 class NodeFunction(object):
     def __init__(self,
         name,
@@ -45,12 +69,22 @@ class NodeFunction(object):
         self.outputs = outputs
 
     def __str__(self):        
-        fn_str = '\n'.join(['name: {}\ndoc: {}'.format(self.name, self.docstring)])
+        fn_str = '\n'.join(['name: {}\ndocstring: {}'.format(self.name, self.docstring)])
         fn_str += '\nInputs:\n'
         fn_str += '\n'.join(str(input_) for input_ in self.inputs)
         fn_str += '\nOutputs:\n'
         fn_str += '\n'.join(str(output_) for output_ in self.outputs)
         return fn_str
+
+    def to_serialized_dict(self):
+        serialized_dict = {}
+        for var, val in vars(self).items():
+            if isinstance(val, list):
+                serialized_dict[var] = [v.to_serialized_dict() for v in val]
+            else:
+                serialized_dict[var] = str(val)
+        return serialized_dict
+
 
 class Node(object):
     def __init__(self,
@@ -68,7 +102,7 @@ class Node(object):
         self.nodes = nodes
 
     def __str__(self):        
-        cls_str = '\n'.join(['name: {}\ndoc: {}'.format(self.name, self.docstring)])
+        cls_str = '\n'.join(['name: {}\ndocstring: {}'.format(self.name, self.docstring)])
         cls_str += '\nInputs:\n'
         cls_str += '\n'.join(str(input_) for input_ in self.inputs)
         cls_str += '\nOutputs:\n'
@@ -79,5 +113,11 @@ class Node(object):
         cls_str += '\n'.join(str(cls) for cls in self.nodes)
         return cls_str
 
-
-
+    def to_serialized_dict(self):
+        serialized_dict = {}
+        for var, val in vars(self).items():
+            if isinstance(val, list):
+                serialized_dict[var] = [v.to_serialized_dict() for v in val]
+            else:
+                serialized_dict[var] = str(val)
+        return serialized_dict

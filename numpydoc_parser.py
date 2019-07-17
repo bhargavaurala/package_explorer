@@ -1,12 +1,13 @@
 from numpydoc.docscrape import FunctionDoc, ClassDoc
 from db_containers import Input, Output
-import sys
+
 from sklearn.ensemble import AdaBoostClassifier
-from sklearn.decomposition import sparse_encode
+
 
 def parameter_type_parser(param_type):
     parsed_param_type = {}
     parsed_param_type['numpydocparsestring'] = param_type
+    parsed_param_type['param_type'] = None
     # print(param_type)
     # it is a list of valid inputs
     parsed_param_type['options'] = None
@@ -24,8 +25,8 @@ def parameter_type_parser(param_type):
         options = [option.strip('\'') for option in param_type.split('|')]
         parsed_param_type['param_type'] = 'LIST_VALID_OPTIONS'
         parsed_param_type['options'] = options
-    if 'or' in param_type:
-        options = [option.strip('\'') for option in param_type.split('or')]
+    if ' or ' in param_type:
+        options = [option.strip('\'').strip() for option in param_type.split('or')]
         parsed_param_type['param_type'] = 'LIST_VALID_OPTIONS'
         parsed_param_type['options'] = options
     # array of some shape, is None if no shape specified
@@ -37,6 +38,7 @@ def parameter_type_parser(param_type):
             if shape_indicator in param_type:
                 parsed_param_type['expected_shape'] = param_type[
                                                       param_type.find(shape_indicator) + len(shape_indicator):].strip()
+    print('param_type', param_type)
     # handling fundamental datatypes integer, float, string, boolean
     if 'int' in param_type or 'integer' in param_type:
         parsed_param_type['param_type'] = int
@@ -56,20 +58,27 @@ def parameter_type_parser(param_type):
         parsed_param_type['param_type'] = tuple
     elif 'iterable' in param_type:
         parsed_param_type['param_type'] = iter
+    elif 'callable' in param_type:
+        parsed_param_type['param_type'] = callable
     else:
         pass
     parsed_param_type['is_optional'] = False
     if 'default' in param_type:
         parsed_param_type['is_optional'] = True
         default_str = param_type.split(',')[-1]
+        default_indicators = ['by default', 'default:', 'default =', 'default=', 'default']
         try:
-            parsed_param_type['default_value'] = default_str[:default_str.find('by default')].strip()
+            for default_indicator in default_indicators:
+                parsed_param_type['default_value'] = default_str[
+                                                     default_str.find(default_indicator) + len(default_indicator):].strip()
         except Exception as e:
             print('unable to parse parameter default value')
             parsed_param_type['default_value'] = None
     if 'optional' in param_type:
         parsed_param_type['is_optional'] = True
         parsed_param_type['default_value'] = None
+    if parsed_param_type['param_type'] is None:
+        print('unable to parse parameter type')
     return parsed_param_type
 
 def numpy_doc_parser(data):
@@ -128,13 +137,6 @@ def numpy_cls_parser(cls):
     # print(data)
     return numpy_doc_parser(data)   
 
-# fn_ = sys.argv[1]
-# mod, fn = '.'.join(fn_.split('.')[:-1]), fn_.split('.')[-1]
-# # print(mod, fn)
-# mod = __import__(mod, fromlist=['foo'])
-# # print(mod, fn)
-# fn = getattr(mod, fn)
-# fn = sparse_encode
 
 fn = AdaBoostClassifier.fit
 inputs, outputs = numpy_fn_parser(fn=fn)
