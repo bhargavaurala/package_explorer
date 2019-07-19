@@ -38,7 +38,9 @@ def parameter_type_parser(param_type):
             if shape_indicator in param_type:
                 parsed_param_type['expected_shape'] = param_type[
                                                       param_type.find(shape_indicator) + len(shape_indicator):].strip()
-    print('param_type', param_type)
+    if 'dataframe' in param_type:
+        parsed_param_type['param_type'] = 'dataframe'
+        parsed_param_type['expected_shape'] = None
     # handling fundamental datatypes integer, float, string, boolean
     if 'int' in param_type or 'integer' in param_type:
         parsed_param_type['param_type'] = int

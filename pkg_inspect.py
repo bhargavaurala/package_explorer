@@ -112,7 +112,11 @@ print(node)
 # with open(outfile_name, 'wb') as f:
 #     pickle.dump(node, f)
 node_dict = node.to_serialized_dict()
-node_dict['library'], node_dict['module'] = package_name.split('.')
+if '.' in package_name:
+    node_dict['library'], node_dict['module'] = package_name.split('.')
+else:
+    node_dict['library'] = package_name
+    node_dict['module'] = None
 outfile_name = '{}.json'.format(package_name)
 with open(outfile_name, 'w') as f:
     node_dict_str = json.dumps(node_dict, indent=4, sort_keys=False)
