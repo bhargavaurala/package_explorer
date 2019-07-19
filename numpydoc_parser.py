@@ -124,6 +124,17 @@ def numpy_doc_parser(data):
             param_type['param_type'],
             returned=False)
         outputs += [output_]
+    for param in data['Attributes']:
+        param_name, param_type, param_desc = param
+        if param_name == 'self':
+            continue
+        param_desc = ' '.join(param_desc).strip()
+        param_type = parameter_type_parser(param_type)
+        output_ = Output(param_name,
+                         param_desc,
+                         param_type['param_type'],
+                         returned=False)
+        outputs += [output_]
     # print(param_type)
     return inputs, outputs
 
