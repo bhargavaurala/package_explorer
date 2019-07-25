@@ -3,7 +3,6 @@ import sys
 import os
 import inspect
 import json
-import pickle
 import pprint
 
 from numpydoc_parser import numpy_fn_parser, numpy_cls_parser
@@ -118,7 +117,8 @@ if '.' in package_name:
 else:
     node_dict['library'] = package_name
     node_dict['module'] = None
-outfile_name = '{}.json'.format(package_name)
+os.makedirs('outputs', exist_ok=True)
+outfile_name = 'outputs/{}.json'.format(package_name)
 with open(outfile_name, 'w') as f:
     node_dict_str = json.dumps(node_dict, indent=4, sort_keys=False)
     f.write(node_dict_str)
