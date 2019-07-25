@@ -4,9 +4,11 @@ import os
 import inspect
 import json
 import pickle
+import pprint
 
 from numpydoc_parser import numpy_fn_parser, numpy_cls_parser
 from db_containers import NodeFunction, Node
+
 
 def explore_package(module_name):
     try:
@@ -22,7 +24,6 @@ def explore_package(module_name):
         print(qname)
         explore_package(qname)
 
-# explore_package(sys.argv[1])
 
 def describe_builtin(obj):
     """ Describe a builtin function """
@@ -41,6 +42,7 @@ def describe_builtin(obj):
             if idx1 != -1 and idx2 != -1 and (idx2 > idx1 + 1):
                 args = s[idx1 + 1:idx2]
     return args
+
 
 def explore_module(mymodule, package_name, node=None):
     if node is None:
@@ -95,10 +97,11 @@ def explore_module(mymodule, package_name, node=None):
         else:
             print("value %s" % element_name)       
 
+
 if len(sys.argv) > 1:
     package_name = sys.argv[1].strip()
 else:
-    package_name = 'sklearn.decomposition'
+    package_name = 'sklearn.model_selection'
 mymodule = __import__(package_name, fromlist=['foo'])
 node = Node(package_name,
                 '',
@@ -107,11 +110,9 @@ node = Node(package_name,
                 node_functions=[],
                 nodes=[])
 explore_module(mymodule, package_name, node)
-print(node)
-# outfile_name = '{}.db.pkl'.format(package_name)
-# with open(outfile_name, 'wb') as f:
-#     pickle.dump(node, f)
 node_dict = node.to_serialized_dict()
+pp = pprint.PrettyPrinter(indent=4)
+pp.pprint(node_dict)
 if '.' in package_name:
     node_dict['library'], node_dict['module'] = package_name.split('.')
 else:

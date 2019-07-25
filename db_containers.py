@@ -1,4 +1,5 @@
-class_to_str = {
+_class_to_str = {
+    object: 'object',
     int: 'int',
     float: 'float',
     bool: 'bool',
@@ -9,6 +10,11 @@ class_to_str = {
     iter: 'iter',
     callable: 'callable'
 }
+
+
+def class_to_str(v):
+    return _class_to_str[v] if v in _class_to_str else v
+
 
 class Input(object):
     def __init__(self, 
@@ -33,8 +39,12 @@ class Input(object):
     def to_serialized_dict(self):
         serialized_dict = {}
         for var, val in vars(self).items():
-            serialized_dict[var] = class_to_str[val] if val in class_to_str else val
+            if var == 'param_type':
+                serialized_dict[var] = [class_to_str(v) for v in val]
+            else:
+                serialized_dict[var] = val
         return serialized_dict
+
 
 class Output(object):
     def __init__(self, 
@@ -54,8 +64,12 @@ class Output(object):
     def to_serialized_dict(self):
         serialized_dict = {}
         for var, val in vars(self).items():
-            serialized_dict[var] = class_to_str[val] if val in class_to_str else val
+            if var == 'param_type':
+                serialized_dict[var] = [class_to_str(v) for v in val]
+            else:
+                serialized_dict[var] = val
         return serialized_dict
+
 
 class NodeFunction(object):
     def __init__(self,

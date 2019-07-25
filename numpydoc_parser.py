@@ -7,7 +7,7 @@ from sklearn.ensemble import AdaBoostClassifier
 def parameter_type_parser(param_type):
     parsed_param_type = {}
     parsed_param_type['numpydocparsestring'] = param_type
-    parsed_param_type['param_type'] = None
+    parsed_param_type['param_type'] = []
     # print(param_type)
     # it is a list of valid inputs
     parsed_param_type['options'] = None
@@ -19,19 +19,21 @@ def parameter_type_parser(param_type):
             options = [option.strip('\'') for option in param_type.split(',')]        
         else:
             options = [option.strip('\'') for option in param_type.split(' ')]
-        parsed_param_type['param_type'] = 'LIST_VALID_OPTIONS'
+        parsed_param_type['param_type'] += ['LIST_VALID_OPTIONS']
         parsed_param_type['options'] = options
-    if '|' in param_type:
+    elif '|' in param_type:
         options = [option.strip('\'') for option in param_type.split('|')]
-        parsed_param_type['param_type'] = 'LIST_VALID_OPTIONS'
+        parsed_param_type['param_type'] += ['LIST_VALID_OPTIONS']
         parsed_param_type['options'] = options
-    if ' or ' in param_type:
-        options = [option.strip('\'').strip() for option in param_type.split('or')]
-        parsed_param_type['param_type'] = 'LIST_VALID_OPTIONS'
-        parsed_param_type['options'] = options
+    # elif ' or ' in param_type:
+    #     options = [option.strip('\'').strip() for option in param_type.split('or')]
+    #     parsed_param_type['param_type'] += ['LIST_VALID_OPTIONS']
+    #     parsed_param_type['options'] = options
+    else:
+        pass
     # array of some shape, is None if no shape specified
     if 'array' in param_type:
-        parsed_param_type['param_type'] = 'array'
+        parsed_param_type['param_type'] += ['array']
         parsed_param_type['expected_shape'] = None
         shape_indicators = ['shape = ', 'shape =', 'shape= ', 'shape=', 'shape ', 'shape']
         for shape_indicator in shape_indicators:
@@ -39,31 +41,33 @@ def parameter_type_parser(param_type):
                 parsed_param_type['expected_shape'] = param_type[
                                                       param_type.find(shape_indicator) + len(shape_indicator):].strip()
     if 'dataframe' in param_type:
-        parsed_param_type['param_type'] = 'dataframe'
+        parsed_param_type['param_type'] += ['dataframe']
         parsed_param_type['expected_shape'] = None
     # handling fundamental datatypes integer, float, string, boolean
+    if 'object' in param_type:
+        parsed_param_type['param_type'] += [object]
     if 'int' in param_type or 'integer' in param_type:
-        parsed_param_type['param_type'] = int
-    elif 'float' in param_type:
-        parsed_param_type['param_type'] = float
-    elif 'double' in param_type:
-        parsed_param_type['param_type'] = float        
-    elif 'bool' in param_type:
-        parsed_param_type['param_type'] = bool
-    elif 'str' in param_type:
-        parsed_param_type['param_type'] = str
-    elif 'dict' in param_type:
-        parsed_param_type['param_type'] = dict
-    elif 'list' in param_type:
-        parsed_param_type['param_type'] = list
-    elif 'tuple' in param_type:
-        parsed_param_type['param_type'] = tuple
-    elif 'iterable' in param_type:
-        parsed_param_type['param_type'] = iter
-    elif 'callable' in param_type:
-        parsed_param_type['param_type'] = callable
-    else:
-        pass
+        parsed_param_type['param_type'] += [int]
+    if 'float' in param_type:
+        parsed_param_type['param_type'] += [float]
+    if 'double' in param_type:
+        parsed_param_type['param_type'] += [float]
+    if 'bool' in param_type:
+        parsed_param_type['param_type'] += [bool]
+    if 'str' in param_type:
+        parsed_param_type['param_type'] += [str]
+    if 'dict' in param_type:
+        parsed_param_type['param_type'] += [dict]
+    if 'list' in param_type:
+        parsed_param_type['param_type'] += [list]
+    if 'tuple' in param_type:
+        parsed_param_type['param_type'] += [tuple]
+    if 'iterable' in param_type:
+        parsed_param_type['param_type'] += [iter]
+    if 'callable' in param_type:
+        parsed_param_type['param_type'] += [callable]
+    if 'None' in param_type:
+        parsed_param_type['param_type'] += [None]
     parsed_param_type['is_optional'] = False
     if 'default' in param_type:
         parsed_param_type['is_optional'] = True
@@ -79,9 +83,11 @@ def parameter_type_parser(param_type):
     if 'optional' in param_type:
         parsed_param_type['is_optional'] = True
         parsed_param_type['default_value'] = None
-    if parsed_param_type['param_type'] is None:
+    if len(parsed_param_type['param_type']) == 0:
         print('unable to parse parameter type')
+        parsed_param_type['param_type'] += [None]
     return parsed_param_type
+
 
 def numpy_doc_parser(data):
     inputs = []
@@ -140,10 +146,12 @@ def numpy_doc_parser(data):
     # print(param_type)
     return inputs, outputs
 
+
 def numpy_fn_parser(fn):
     data = FunctionDoc(fn)
     # print(data)
     return numpy_doc_parser(data)
+
 
 def numpy_cls_parser(cls):
     data = ClassDoc(cls)
