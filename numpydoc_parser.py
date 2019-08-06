@@ -72,11 +72,11 @@ def parameter_type_parser(param_type):
     if 'default' in param_type:
         parsed_param_type['is_optional'] = True
         default_str = param_type.split(',')[-1]
-        default_indicators = ['by default', 'default:', 'default =', 'default=', 'default']
+        default_indicators = ['by default', 'default:', 'default =', 'default=', 'default', 'default is']
         try:
             for default_indicator in default_indicators:
-                parsed_param_type['default_value'] = default_str[
-                                                     default_str.find(default_indicator) + len(default_indicator):].strip()
+                parsed_param_type['default_value'] = default_str.lower()[default_str.find(default_indicator) + len(
+                    default_indicator):].strip()
         except Exception as e:
             print('unable to parse parameter default value')
             parsed_param_type['default_value'] = None
