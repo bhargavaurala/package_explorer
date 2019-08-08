@@ -35,7 +35,8 @@ def parameter_type_parser(param_type):
     if 'array' in param_type:
         parsed_param_type['param_type'] += ['array']
         parsed_param_type['expected_shape'] = None
-        shape_indicators = ['shape = ', 'shape =', 'shape= ', 'shape=', 'shape ', 'shape']
+        shape_indicators = ['shape =', 'shape=', 'shape']
+        shape_indicators.sort(key=len)
         for shape_indicator in shape_indicators:
             if shape_indicator in param_type:
                 parsed_param_type['expected_shape'] = param_type[
@@ -73,6 +74,7 @@ def parameter_type_parser(param_type):
         parsed_param_type['is_optional'] = True
         default_str = param_type.split(',')[-1]
         default_indicators = ['by default', 'default:', 'default =', 'default=', 'default', 'default is']
+        default_indicators.sort(key=len)
         try:
             for default_indicator in default_indicators:
                 parsed_param_type['default_value'] = default_str.lower()[default_str.find(default_indicator) + len(
