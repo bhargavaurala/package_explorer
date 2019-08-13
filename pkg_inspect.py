@@ -94,31 +94,33 @@ def explore_module(mymodule, package_name, node=None):
                 except:
                     pass
         else:
-            print("value %s" % element_name)       
+            print("value %s" % element_name)
+    return node
 
 
-if len(sys.argv) > 1:
-    package_name = sys.argv[1].strip()
-else:
-    package_name = 'sklearn.model_selection'
-mymodule = __import__(package_name, fromlist=['foo'])
-node = Node(package_name,
-                '',
-                inputs=[],
-                outputs=[],
-                node_functions=[],
-                nodes=[])
-explore_module(mymodule, package_name, node)
-node_dict = node.to_serialized_dict()
-pp = pprint.PrettyPrinter(indent=4)
-pp.pprint(node_dict)
-if '.' in package_name:
-    node_dict['library'], node_dict['module'] = package_name.split('.')
-else:
-    node_dict['library'] = package_name
-    node_dict['module'] = None
-os.makedirs('outputs', exist_ok=True)
-outfile_name = 'outputs/{}.json'.format(package_name)
-with open(outfile_name, 'w') as f:
-    node_dict_str = json.dumps(node_dict, indent=4, sort_keys=False)
-    f.write(node_dict_str)
+if __name__ == '__main__':
+    if len(sys.argv) > 1:
+        package_name = sys.argv[1].strip()
+    else:
+        package_name = 'sklearn.model_selection'
+    mymodule = __import__(package_name, fromlist=['foo'])
+    node = Node(package_name,
+                    '',
+                    inputs=[],
+                    outputs=[],
+                    node_functions=[],
+                    nodes=[])
+    explore_module(mymodule, package_name, node)
+    node_dict = node.to_serialized_dict()
+    pp = pprint.PrettyPrinter(indent=4)
+    pp.pprint(node_dict)
+    if '.' in package_name:
+        node_dict['library'], node_dict['module'] = package_name.split('.')
+    else:
+        node_dict['library'] = package_name
+        node_dict['module'] = None
+    os.makedirs('outputs', exist_ok=True)
+    outfile_name = 'outputs/{}.json'.format(package_name)
+    with open(outfile_name, 'w') as f:
+        node_dict_str = json.dumps(node_dict, indent=4, sort_keys=False)
+        f.write(node_dict_str)

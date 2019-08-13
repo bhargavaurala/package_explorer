@@ -77,8 +77,10 @@ def parameter_type_parser(param_type):
         default_indicators.sort(key=len)
         try:
             for default_indicator in default_indicators:
-                parsed_param_type['default_value'] = default_str.lower()[default_str.find(default_indicator) + len(
-                    default_indicator):].strip()
+                if default_str.lower().find(default_indicator) == -1:
+                    continue
+                parsed_param_type['default_value'] = default_str[default_str.lower().find(default_indicator) + len(
+                    default_indicator):].strip().replace(')', '').replace('(', '').replace('\'', '')
         except Exception as e:
             print('unable to parse parameter default value')
             parsed_param_type['default_value'] = None
