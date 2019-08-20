@@ -31,6 +31,7 @@ class Input(object):
         self.expected_shape = expected_shape
         self.is_optional = is_optional
         self.default_value = default_value
+        self.options = options
     
     def __str__(self):        
         attrs = vars(self)    
