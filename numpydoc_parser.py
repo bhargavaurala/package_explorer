@@ -14,11 +14,11 @@ def parameter_type_parser(param_type):
     parsed_param_type['default_value'] = None
     parsed_param_type['expected_shape'] = None
     if '{' in param_type:
-        param_type = param_type.strip('{').strip('}')
+        param_type = param_type.replace('{', '').replace('}', '')
         if ',' in param_type:
-            options = [option.strip('\'') for option in param_type.split(',')]        
+            options = [option.replace('\'', '').replace('\"', '').strip() for option in param_type.split(',')]
         else:
-            options = [option.strip('\'') for option in param_type.split(' ')]
+            options = [option.replace('\'', '').replace('\"', '').strip() for option in param_type.split(' ')]
         parsed_param_type['param_type'] += ['LIST_VALID_OPTIONS']
         parsed_param_type['options'] = options
     elif '|' in param_type:
